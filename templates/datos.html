@@ -27,10 +27,30 @@
 <body class="h-100 bg-primary">
 	<div class="container-fluid bg-light" style="width: 60%">
 		<div class="row" style="border: 1px solid black">
-				<div class="col-12" style="text-align: center;border: 1px solid black">
-					<h1>Datos Obtenidos</h1>
+				<div class="col-12" style="text-align: center;border:">
+					<h1>Mostrar datos Actuales</h1>
 				</div>
-
+				<div class="col-12">
+					<form class="form-group row" action="{{ url_for('datos') }}">
+						<div class="col-5">
+							{{select}}
+								<div class="form-group" style="border: 1px solid black">
+    								<label for="exampleFormControlSelect1">Variable a seleccionar</label>
+    								<select class="form-control" name="select1">
+		 							   		{% for i in options %}
+		    										<option value="{{i}}">{{i}}</option>
+		    								{% endfor %}
+							    	</select>
+  						  		</div>
+						</div>
+						<div class="col-12">
+							<button type="submit" class="btn btn-primary">Submit</button>
+						</div>
+						
+					</form>			
+				</div>
+					
+				</div>
 		</div>
 		
 	</div>
