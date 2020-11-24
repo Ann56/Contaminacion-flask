@@ -9,44 +9,27 @@ app = Flask(__name__)
 
 df = pd.read_csv("uma_02.csv",sep=",")
 
-def grafico_mp25():
-	
-	x = df['time']
-	y = df['mp25']
+def create_plot(data):
+	x = df[data]
+	y = df['time']
 
-	data = [
-			go.Bar(x=x,
-				   y=y
-				   )
+	data = [go.Bar(x=x,y=y)]
 
-	]
+	graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
 
-	graphJson=json.dumps(data , cls=plotly.utils.PlotlyJSONEncoder)
+	return graphJSON
 
-	return graphJson
 
-def grafico_d03():
-	
-	x = df['time']
-	y = df['d03']
 
-	data = [
-			go.Bar(x=x,
-				   y=y,
-				   )
-
-	]
-
-	graphJson=json.dumps(data , cls=plotly.utils.PlotlyJSONEncoder)
-
-	return graphJson
-
-@app.route("/")
+@app.route("/",methods=['GET', 'POST'])
 def index():
-
-	bar  = grafico_mp25()
-	bar2 = grafico_d03()
-	return render_template('index.html',bar=[bar,bar2])
+	if request.method == 'POST':
+		respuesta = request.args['dato']
+		print(respuesta)
+	bar = create_plot('mp01')
+	col = df.columns[4:len(df.columns)-1]
+	col = list(col)
+	return render_template('index.html',col=col,bar=bar)
 
 @app.route("/datos",methods=['GET', 'POST'])
 def datos():
@@ -59,3 +42,8 @@ def datos():
 	
 		
 	return render_template('datos.html',options=col,select=str(select))
+
+
+
+if __name__ == '__main__':
+	app.run(debug=True)

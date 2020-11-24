@@ -11,7 +11,16 @@ col = df.columns[4:len(df.columns)-1]
 
 col = list(col)
 
-print (col)
+
+def data(data):
+	print(df[data])
+
+
+data('mp25')
+data('time')
+
+
+
 
 #plt.plot(df['time'],df['mp25'])
 
