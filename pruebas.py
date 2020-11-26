@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import json
 import plotly
 import plotly.graph_objs as go
+
+
 # Archivo para ver forma de datos 
 
 df = pd.read_csv("uma_02.csv",sep=",")
@@ -26,8 +28,14 @@ d_final = {"particulas":d}
 
 
 
-json_object = json.dumps(d_final, cls=plotly.utils.PlotlyJSONEncoder)
-print(json_object)
+json_object = json.dumps(d_final,indent=4)
+
 with open("static/js/uma.json","w") as outfile:
 	outfile.write(json_object)
 
+
+#with open("static/js/uma.json") as file:
+#	d = json.load(file)
+#	d = d['particulas']
+
+#print(d)

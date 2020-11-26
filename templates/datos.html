@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Inicio</title>
+		<title>Datos Disponibles</title>
 		<link rel="stylesheet" href="{{url_for('static', filename = 'css/style.css')}}">
 		<link rel="stylesheet" href="{{url_for('static', filename = 'css/bootstrap.css')}}">
   		<script src="{{url_for('static', filename = 'js/popper.js')}}"></script>
@@ -54,10 +54,25 @@
 					<!--- Page Content --->
 				    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4" >
 				      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-					        <h1 class="h2" id="name" >Grafico</h1>
+					        <h1 class="h2" id="name" >Datos Disponibles</h1>
 				      </div>
-				      <div class="chart js-plotly-plot" id="bargraph">
-					   </div>
+				      <div class="col-10">
+				      	<table class="table" >
+							  <thead class="thead-dark">
+							    <tr>
+							      <th scope="col">#</th>
+							      <th scope="col">Tiempo</th>
+							      <th scope="col">Datos</th>
+							    </tr>
+							  </thead>
+							  <tbody id="fil">
+							  	
+
+							  </tbody>
+							</table>
+				      </div>
+
+
 <script type="text/javascript">
 	
 	$('#sidebar').each(function(){
@@ -65,36 +80,52 @@
 			$(this).click(function(){
 				var name = $(this).find('a').attr("id");
 
-				var nombre = 'Grafico ' + name;
-				$("#name").text(nombre);
+				var nombre = 'Datos Disponibles de  ' + name;
+				
+				$("#name").text(nombre)
+
+
+				$("#fill").html(function(){
+					return ""
+				})
+
 
 				$.ajax({
-					url: '/getbar',
+					url: '/getdata',
 					data: {'name':name},
 					type: 'POST',
 					success: function(response){
-						
 						var datax = JSON.parse(response)
-						data = [{
-							 x: datax.data.x,
-							 y: datax.data.y,
-							 type:'bar'
+						
+						console.log(datax.data.time.length)
+
+						html = ""
+
+						for (i=0;i < datax.data.time.length;i++) {
+
+
+							time = datax.data.time[i]
+							valor = datax.data.valor[i]
+							ind = i +1
+
+							html = html + "<tr>" 
+							html = html + "<th scope='row'>"+ ind +'</th>'
+							html = html + "<th>"+ time +'</th>'
+							html = html + "<th>"+ valor +'</th>' 
+							html = html + "</tr>"
+
+							$("#fil").html(function(){
+								return html
+							})
+
 						}
 
-						]
 
-						Plotly.newPlot('bargraph', data);
 					},
 					error: function(error){
 						console.log(error);
 					}
 				});
-
-
-
-                  	
-            
-				
                
 
 			});
