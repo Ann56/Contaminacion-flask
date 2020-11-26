@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Simulacion</title>
+		<link rel="stylesheet" href="{{url_for('static', filename = 'css/style.css')}}">
+		<link rel="stylesheet" href="{{url_for('static', filename = 'css/bootstrap.css')}}">
+  		<script src="{{url_for('static', filename = 'js/popper.js')}}"></script>
+  		<script src="{{url_for('static', filename = 'js/jquery.js')}}"></script>
+  		<script src="{{url_for('static', filename = 'js/bootstrap.js')}}"></script>
+  		<script src="{{url_for('static', filename = 'js/main.js')}}"></script>
+  		<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+	</head>
+	<!--- Sidebar ---->
+	<nav class="navbar navbar-expand-lg navbar-light " style="background-color: #48FAC8 ;">
+	<a class="navbar-brand">Aplicacion Flask</a>
+		<div cclass="collapse navbar-collapse" id="navbarText">
+		    <ul class="navbar-nav mr-auto">
+		      <li class="nav-item active">
+		        <a class="nav-link" href="{{ url_for('index')}}">Inicio <span class="sr-only">(current)</span></a>
+		      </li>
+		      <li class="nav-item">
+		        <a class="nav-link" href="{{ url_for('datos')}}">Datos obtenidos</a>
+		      </li>
+		      <li class="nav-item">
+		        <a class="nav-link" href="{{ url_for('simulacion')}}">Simulador</a>
+		      </li>
+		    </ul>
+		</div>
+	</nav>
+	<body>
+			<!--- Sidebar --->
+			<div class="container-fluid" > 
+				<div class="row">
+				    <nav  d="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+				      <div class="sidebar-sticky pt-3">
+				        <ul class="nav flex-column" id="sidebar">
+					          <li class="nav-item">
+					            <a class="nav-link " style="background-color: #FA5D2F ;color: white">
+					              <span data-feather="home"></span>
+					             	Datos Simulacion <span class="sr-only">(current)</span>
+					            </a>
+					          </li>
+		          		 		
+						          <li class="sel nav-item">
+										<label for="customRange2">Tiempo Incial</label>
+										<input type="range" class="custom-range" min="0" max="5" id="customRange2">
+						          </li>	
+						          <li>
+						          	<div class="container-fluid">
+						          		<a > Constante de </a>
+						          		<div class="row">
+						          		<select class="form-control form-control-sm col-3">
+						          			<option>C1</option>
+						          			<option>C2</option>
+						          			<option>C3</option>
+						          			<option>C4</option>
+						          			<option>C5</option>
+						          			<option>C5</option>
+						          		</select>
+
+						          		<input type="range" class="col-9 custom-range" min="0" max="5" id="customRange2">						          			
+						          		</div>
+						          		
+						          			
+											
+						          		
+						          	</div>
+
+
+						          </li>								
+
+
+				      	</ul>
+				      </div>
+				    </nav>
+					<!--- Page Content --->
+				    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4" >
+				      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+					        <h1 class="h2" id="name" >Grafico</h1>
+				      </div>
+				      <div class=" chart" id="bargraph">
+					   </div>
+				    </main>
+				</div>
+			</div>
+
+	</body>
+
+
+</html>

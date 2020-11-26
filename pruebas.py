@@ -1,32 +1,33 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-
-
+import json
+import plotly
+import plotly.graph_objs as go
 # Archivo para ver forma de datos 
 
 df = pd.read_csv("uma_02.csv",sep=",")
 
+col = list(df.columns[4:len(df.columns)-1])
 
-col = df.columns[4:len(df.columns)-1]
-
-col = list(col)
-
-
-def data(data):
-	print(df[data])
-
-
-data('mp25')
-data('time')
+d = {}
+time = list(df['time'])
 
 
 
+for i in range(len(col)):
+	x = time ; y = list(df[col[i]])
+	data = [go.Bar(x=x,y=y)]
 
-#plt.plot(df['time'],df['mp25'])
+	d[col[i]] = data
 
-#plt.show()
+
+d_final = {"particulas":d}
 
 
 
 
+json_object = json.dumps(d_final, cls=plotly.utils.PlotlyJSONEncoder)
+print(json_object)
+with open("static/js/uma.json","w") as outfile:
+	outfile.write(json_object)
 
