@@ -44,33 +44,81 @@
 		          		 		
 						          <li class="sel nav-item">
 										<label for="customRange2">Tiempo Incial</label>
-										<input type="range" class="custom-range" min="0" max="5" id="customRange2">
+										<input type="range" class="custom-range" min="0" max="1" step="0.01" id="dt">
 						          </li>	
-						          <li>
-						          	<div class="container-fluid">
-						          		<a > Constante de </a>
-						          		<div class="row">
-						          		<select class="form-control form-control-sm col-3">
-						          			<option>C1</option>
-						          			<option>C2</option>
-						          			<option>C3</option>
-						          			<option>C4</option>
-						          			<option>C5</option>
-						          			<option>C5</option>
-						          		</select>
-
-						          		<input type="range" class="col-9 custom-range" min="0" max="5" id="customRange2">						          			
-						          		</div>
-						          		
-						          			
-											
-						          		
+						          <li id="activar">
+						          		<select class="form-control form-control-sm" id="sel">
+						          			<option value="1">Establecer Constantes</option>
+						          			<option value="2">Establecer Valores Iniciales</option>
+						          		</select>					          								          	
+						          </li>	
+						          <div id="Econstantes">
+	 								  <li class="divider"><hr></li>
+										<li class="sel nav-item">
+											<label for="customRange2">C1</label>
+											<input type="range" class="c custom-range" min="0" max="1" step="0.1">
+							          	</li>	
+										<li class="sel nav-item">
+											<label for="customRange2">C2</label>
+											<input type="range" class="c custom-range" min="0" max="1" step="0.1">
+							          	</li>	
+										<li class="sel nav-item">
+											<label for="customRange2">C3</label>
+											<input type="range" class="c custom-range" min="0" max="1" step="0.1">
+							          	</li>	
+										<li class="sel nav-item">
+											<label for="customRange2">C4</label>
+											<input type="range" class="c custom-range" min="0" max="1" step="0.1">
+							          	</li>	
+										<li class="sel nav-item">
+											<label for="customRange2">C5</label>
+											<input type="range" class="c custom-range" min="0" max="1" step="0.1">
+							          	</li>	
+										<li class="sel nav-item">
+											<label for="customRange2">C6</label>
+											<input type="range" class="c custom-range" min="0" max="1" step="0.1">
+							          	</li>	
+										<li class="sel nav-item">
+											<label for="customRange2">C7</label>
+											<input type="range" class="c custom-range" min="0" max="1" step="0.1">
+							          	</li>							          						      						          					
 						          	</div>
 
-
-						          </li>								
-
-
+						          <div id="Evalores">
+	 								  <li class="divider"><hr></li>
+										<li class="sel nav-item">
+											<label for="customRange2">C1</label>
+											<input type="range" class="c custom-range" min="0" max="10" step="0.1">
+							          	</li>	
+										<li class="sel nav-item">
+											<label for="customRange2">C2</label>
+											<input type="range" class="c custom-range" min="0" max="10" step="0.1">
+							          	</li>	
+										<li class="sel nav-item">
+											<label for="customRange2">C3</label>
+											<input type="range" class="c custom-range" min="0" max="10" step="0.1">
+							          	</li>	
+										<li class="sel nav-item">
+											<label for="customRange2">C4</label>
+											<input type="range" class="c custom-range" min="0" max="10" step="0.1">
+							          	</li>	
+										<li class="sel nav-item">
+											<label for="customRange2">C5</label>
+											<input type="range" class="c custom-range" min="0" max="10" step="0.1">
+							          	</li>	
+										<li class="sel nav-item">
+											<label for="customRange2">C6</label>
+											<input type="range" class="c custom-range" min="0" max="10" step="0.1">
+							          	</li>	
+										<li class="sel nav-item">
+											<label for="customRange2">C7</label>
+											<input type="range" class="c custom-range" min="0" max="10" step="0.1">
+							          	</li>							          						      						          					
+						          	</div>
+						          	<li>
+						          		<li class="divider"><hr></li>
+						          		<button class="btn btn-primary" id="guardar">Establecer Datos</button>
+						          	</li>
 				      	</ul>
 				      </div>
 				    </nav>
@@ -79,13 +127,120 @@
 				      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 					        <h1 class="h2" id="name" >Grafico</h1>
 				      </div>
-				      <div class=" chart" id="bargraph">
-					   </div>
+				      <div>
+				      	<img src="{{url_for('static', filename = 'img/malla.jpg')}}" class="img-fluid">
+				      </div>
 				    </main>
 				</div>
 			</div>
-
 	</body>
+<script type="text/javascript">
+	
+	$(document).ready(function() {
+
+		
+		var aValores   = new Array (5,5,5,5,5,5,5);
+		var aConstantes = new Array (5,5,5,5,5,5,5);
+		// flag -> false ; activado Establecer valores
+		// flag -> true : activado Establecer  Constantes
+		var flag = false;
+
+
+
+		//Se ejecuta una vez 
+		$("#Evalores").hide();
+
+
+
+		$("#activar").click(function(){
+			val = $("#sel").val()
+			if(val == 1){
+				flag = false;
+				$("#Evalores").hide();
+				$("#Econstantes").show();
+			}else{
+				flag = true;
+				$("#Evalores").show();
+				$("#Econstantes").hide();			
+			}
+			console.log(flag)
+			
+		});
+
+
+	$( "#Econstantes li" ).each(function( index ) {
+		  	val = $(this).find('input').val()
+
+		  	text = $(this).find("label").text()
+
+		  	$(this).find("label").text(text +": "+val)
+	});
+	$( "#Evalores li" ).each(function( index ) {
+		  	val = $(this).find('input').val()
+
+		  	text = $(this).find("label").text()
+
+		  	$(this).find("label").text(text +": "+val)
+	});
+
+	$(".c").change(function(index){
+		text = " "
+		val  = " "
+		cont = 0
+
+		if(flag){
+
+			$( "#Evalores li" ).each(function( index ) {
+			  	val = $(this).find('input').val()
+			  	aValores[cont] = val
+			  	text = "C"+cont+": "+val
+			  	$(this).find("label").text(text)
+			  	cont = cont + 1 
+			});			
+		}else{
+			$( "#Econstantes li" ).each(function( index ) {
+			  	val = $(this).find('input').val()
+			  	aConstantes[cont] = val
+			  	text = "C"+cont+": "+val
+			  	$(this).find("label").text(text)
+			  	cont = cont + 1 
+			  	//console.log(aConstantes)
+			});					
+		}
+
+	
+	});
+
+	$("#guardar").click(function(){
+			var mensaje;
+		    var opcion = confirm("Desea confirmar los datos ?");
+		    if (opcion == true) {
+		        //Envia los datos a python
+
+		        $.ajax({
+					url: '/data',
+					data: {'v':[aValores.join()],'c':[aConstantes.join()]},
+					type: 'POST',
+					success: function(response){
+						
+						var datax = JSON.parse(response)
+
+						console.log(datax)
+					},
+					error: function(error){
+						console.log(error);
+					}
+				});
+			}
+			console.log(mensaje)
+	});
+		
+});
+
+
+
+
+</script>
 
 
 </html>

@@ -51,6 +51,15 @@ def getBar():
 def simulacion():
 	return render_template('Simulacion.html')
 
+@app.route("/data",methods=['POST'])
+def data():
+
+	aConstantes = request.form['c']
+	aValores    = request.form['v']
+
+	print(request.form)
+	return json.dumps({'status':'Ok'})
+
 
 if __name__ == '__main__':
 	app.run(debug=True)
