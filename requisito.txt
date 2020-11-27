@@ -4,3 +4,5 @@ plotly==4.13.0
 virtualenv==20.2.1
 virtualenv-clone==0.5.4
 simplejson==3.16.0
+matplotlib==3.3.3
+pandas==1.1.4
