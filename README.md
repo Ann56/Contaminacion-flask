@@ -1,3 +1,6 @@
 Proyecto para mostrar datos obtenidos de sensores de contaminacion 
 
-flask run <- ejecucion 
+
+Ejecucion : 
+1. pip3 install -r requisito.txt
+2. flask run 
