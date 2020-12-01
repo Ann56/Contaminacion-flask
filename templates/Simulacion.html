@@ -8,9 +8,18 @@
   		<script src="{{url_for('static', filename = 'js/jquery.js')}}"></script>
   		<script src="{{url_for('static', filename = 'js/bootstrap.js')}}"></script>
   		<script src="{{url_for('static', filename = 'js/main.js')}}"></script>
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+		<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+		<script src="https://npmcdn.com/leaflet-geometryutil"></script>
   		<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
 	</head>
+
+<style type="text/css">
+	
+	#map{height: 500px;}
+
+</style>
 	<!--- Sidebar ---->
 	<nav class="navbar navbar-expand-lg navbar-light " style="background-color: #48FAC8 ;">
 	<a class="navbar-brand">Aplicacion Flask</a>
@@ -48,73 +57,31 @@
 						          </li>	
 						          <li id="activar">
 						          		<select class="form-control form-control-sm" id="sel">
-						          			<option value="1">Establecer Constantes</option>
-						          			<option value="2">Establecer Valores Iniciales</option>
+						          			<option value="1">Establecer Cantidad de nodos</option>
+						          			<option value="2" id="op1">Establecer Constantes</option>
+						          			<option value="3" id="op2">Establecer Valores Iniciales</option>
 						          		</select>					          								          	
 						          </li>	
+						          <div id="Enodos">
+						          	<li class="divider"><hr></li>
+						          	<li>
+						          		<input id="cnodos" type="number" class="form-control" name="nodos">
+						          	</li>
+						          	<li class="divider"><hr></li>
+						          	
+						          	<li>	
+						          		<button class="btn btn-primary" id="guardar_nodos">Establecer Nodos </button>
+						          	</li>
+						          	
+
+						          </div>
 						          <div id="Econstantes">
-	 								  <li class="divider"><hr></li>
-										<li class="sel nav-item">
-											<label for="customRange2">C1</label>
-											<input type="range" class="c custom-range" min="0" max="1" step="0.1">
-							          	</li>	
-										<li class="sel nav-item">
-											<label for="customRange2">C2</label>
-											<input type="range" class="c custom-range" min="0" max="1" step="0.1">
-							          	</li>	
-										<li class="sel nav-item">
-											<label for="customRange2">C3</label>
-											<input type="range" class="c custom-range" min="0" max="1" step="0.1">
-							          	</li>	
-										<li class="sel nav-item">
-											<label for="customRange2">C4</label>
-											<input type="range" class="c custom-range" min="0" max="1" step="0.1">
-							          	</li>	
-										<li class="sel nav-item">
-											<label for="customRange2">C5</label>
-											<input type="range" class="c custom-range" min="0" max="1" step="0.1">
-							          	</li>	
-										<li class="sel nav-item">
-											<label for="customRange2">C6</label>
-											<input type="range" class="c custom-range" min="0" max="1" step="0.1">
-							          	</li>	
-										<li class="sel nav-item">
-											<label for="customRange2">C7</label>
-											<input type="range" class="c custom-range" min="0" max="1" step="0.1">
-							          	</li>							          						      						          					
-						          	</div>
+	 								  <li class="divider"><hr></li>				      						          					
+						          </div>
 
 						          <div id="Evalores">
-	 								  <li class="divider"><hr></li>
-										<li class="sel nav-item">
-											<label for="customRange2">C1</label>
-											<input type="range" class="c custom-range" min="0" max="10" step="0.1">
-							          	</li>	
-										<li class="sel nav-item">
-											<label for="customRange2">C2</label>
-											<input type="range" class="c custom-range" min="0" max="10" step="0.1">
-							          	</li>	
-										<li class="sel nav-item">
-											<label for="customRange2">C3</label>
-											<input type="range" class="c custom-range" min="0" max="10" step="0.1">
-							          	</li>	
-										<li class="sel nav-item">
-											<label for="customRange2">C4</label>
-											<input type="range" class="c custom-range" min="0" max="10" step="0.1">
-							          	</li>	
-										<li class="sel nav-item">
-											<label for="customRange2">C5</label>
-											<input type="range" class="c custom-range" min="0" max="10" step="0.1">
-							          	</li>	
-										<li class="sel nav-item">
-											<label for="customRange2">C6</label>
-											<input type="range" class="c custom-range" min="0" max="10" step="0.1">
-							          	</li>	
-										<li class="sel nav-item">
-											<label for="customRange2">C7</label>
-											<input type="range" class="c custom-range" min="0" max="10" step="0.1">
-							          	</li>							          						      						          					
-						          	</div>
+	 								  <li class="divider"><hr></li>						          						      						          					
+						          </div>
 						          	<li>
 						          		<li class="divider"><hr></li>
 						          		<button class="btn btn-primary" id="guardar">Establecer Datos</button>
@@ -125,19 +92,21 @@
 					<!--- Page Content --->
 				    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4" >
 				      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-					        <h1 class="h2" id="name" >Grafico</h1>
+					        <h1 class="h2" id="name" >Mapa</h1>
 				      </div>
-				      <div>
-				      	<img src="{{url_for('static', filename = 'img/malla.jpg')}}" class="img-fluid">
-				      </div>
+				      <div id="map" style="border: 1px solid black;"></div>
+
+				      <!---	<img src="{{url_for('static', filename = 'img/malla.jpg')}}" class="img-fluid"> -->
+				      
 				    </main>
 				</div>
 			</div>
 	</body>
 <script type="text/javascript">
-	
+	var cNodos = 0;
 	$(document).ready(function() {
 
+		
 		
 		var aValores   = new Array (5,5,5,5,5,5,5);
 		var aConstantes = new Array (5,5,5,5,5,5,5);
@@ -149,24 +118,41 @@
 
 		//Se ejecuta una vez 
 		$("#Evalores").hide();
+		$("#Econstantes").hide();
+		$("#op1").hide();
+		$("#op2").hide();
+		$("#guardar").hide();
 
 
 
 		$("#activar").click(function(){
 			val = $("#sel").val()
+			
+			//Muestra input para establecer Nodos
 			if(val == 1){
+				$("#guardar").hide();
+				$("#Enodos").show();
+				$("#Evalores").hide();
+				$("#Econstantes").hide();
+			}
+			//Muestra para establecer Constantes
+			if(val == 2){
 				flag = false;
 				$("#Evalores").hide();
 				$("#Econstantes").show();
-			}else{
+				$("#guardar").show();
+				$("#Enodos").hide();
+			}
+			//Muestra establecer Valores
+			if(val == 3){
 				flag = true;
 				$("#Evalores").show();
-				$("#Econstantes").hide();			
+				$("#Econstantes").hide();	
+				$("#guardar").show();	
+				$("#Enodos").hide();	
 			}
-			console.log(flag)
 			
 		});
-
 
 	$( "#Econstantes li" ).each(function( index ) {
 		  	val = $(this).find('input').val()
@@ -183,13 +169,11 @@
 		  	$(this).find("label").text(text +": "+val)
 	});
 
-	$(".c").change(function(index){
+	$("#sidebar").change(function(index){
 		text = " "
 		val  = " "
 		cont = 0
-
 		if(flag){
-
 			$( "#Evalores li" ).each(function( index ) {
 			  	val = $(this).find('input').val()
 			  	aValores[cont] = val
@@ -216,7 +200,6 @@
 		    var opcion = confirm("Desea confirmar los datos ?");
 		    if (opcion == true) {
 		        //Envia los datos a python
-
 		        $.ajax({
 					url: '/data',
 					data: {'v':[aValores.join()],'c':[aConstantes.join()]},
@@ -234,13 +217,107 @@
 			}
 			console.log(mensaje)
 	});
+
+	$("#guardar_nodos").click(function(){
+		val = $("#cnodos").val();
+		if(val == "" ){
+			alert("Ingresar Cantidad !!")
+		}else{
+			cNodos = val
+			$("#op1").show();
+			$("#op2").show();
+			alert("Cantidad de nodos ingresadas correctamente , ahora puedes establecer los valores !! ")
+			
+			html_constantes = $("#Econstantes").html();
+			html_valores    = $("#Evalores").html();
+			for (var i=0; i < cNodos ; i++) {
+				string = "C"+(i+1)
+
+				html2 = "<li class='sel nav-item'>"
+				html2 = html2 + "<label for='customRange2'>"+string+"</label>"
+				html2 = html2 + "<input type='range' class='c custom-range' min='0' max='1' step='0.1'></li>"							
+				html_constantes = html_constantes + html2
+				$("#Econstantes").html(html_constantes)								
+							          		
+				html3 = '<li class="sel nav-item">'
+				html3 = html3+'<label for="customRange2">'+string+'</label>'
+				html3 = html3+'<input type="range" class="c custom-range" min="0" max="10" step="0.1"></li>'
+				html_valores = html_valores + html3			          	
+				$("#Evalores").html(html_valores)
+				
+			}
+
+		}
+	});
+
+
 		
 });
+</script>
+
+
+				      <script type="text/javascript">
+ 
+
+
+ let posiciones = [];
+ var ind = 0;
+  var map = L.map('map').
+     setView([-38.7028912,-72.5500302],
+     15);
+ L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+maxZoom:18
+}).addTo(map);
+
+L.marker([-38.7028912,-72.5500302],{draggable: true}).addTo(map);
+
+map.on('click', function(e) {
+    var coord = e.latlng;
+    var add_coord = true;
+    var lat = coord.lat;
+    var long = coord.lng;
+
+    //Variable para guardar la coordenada mas cercana
+    var coord_2  
+    //Detecta si es un valor cercano 
+    for (var i=0; i < posiciones.length ; i++) {
+    	d = L.GeometryUtil.length([coord, posiciones[i]])
+
+    	if ( d <= 100 ){
+    		add_coord = false
+    		coord_2 = posiciones[i]
+    	}
+    }
+
+    if(add_coord){
+    	posiciones.push([lat,long]);
+    }else{
+    	posiciones.push(coord_2)
+    	add_coord = true
+    	console.log(cNodos)
+
+    }
+    
 
 
 
+    if ( posiciones.length > 0){
+    	console.log("Soy grande")
+    	L.circle(posiciones[ind], {radius: 10}).addTo(map);
+    	ind = ind +1
+    }    
+    if(posiciones.length > 2 ){
+    	var polyline = L.polyline(posiciones, {color: 'red'}).addTo(map);
+    }
+
+
+} );
 
 </script>
+
+
+
 
 
 </html>
