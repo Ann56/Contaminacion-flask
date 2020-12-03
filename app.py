@@ -22,14 +22,13 @@ def datos():
 
 @app.route("/getdata",methods=['POST'])
 def getData():
-	#Obtiene el nombre de las columnas de csv 
-	name = request.form['name']
-
+	#Retorna la latitud y longitud
 	with open("static/js/uma.json") as file:
 		d = js.load(file)
-		d = d['particulas']
-	d = d[name]
-	return json.dumps({'status':'Ok','data':{'time':d['time'],'valor':d['valor']}})
+		coord   = d['Coord']
+		particulas = d['particulas'] 
+	return json.dumps({'status':'Ok','coord':coord,'particulas':particulas})
+
 	
 
 

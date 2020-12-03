@@ -7,12 +7,9 @@
   		<script src="{{url_for('static', filename = 'js/popper.js')}}"></script>
   		<script src="{{url_for('static', filename = 'js/jquery.js')}}"></script>
   		<script src="{{url_for('static', filename = 'js/bootstrap.js')}}"></script>
-  		<script src="{{url_for('static', filename = 'js/main.js')}}"></script>
 		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 		<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 		<script src="https://npmcdn.com/leaflet-geometryutil"></script>
-  		<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
 	</head>
 
 <style type="text/css">
@@ -104,8 +101,10 @@
 	</body>
 <script type="text/javascript">
 	var cNodos = 0;
+	var cont_nodos = 0;
+	var termino = false;
 	$(document).ready(function() {
-
+		$("#map").hide()
 		
 		
 		var aValores   = new Array (5,5,5,5,5,5,5);
@@ -228,6 +227,7 @@
 			$("#op2").show();
 			alert("Cantidad de nodos ingresadas correctamente , ahora puedes establecer los valores !! ")
 			
+			$("#map").show();
 			html_constantes = $("#Econstantes").html();
 			html_valores    = $("#Evalores").html();
 			for (var i=0; i < cNodos ; i++) {
@@ -253,14 +253,12 @@
 
 		
 });
-</script>
 
-
-				      <script type="text/javascript">
- 
 
 
  let posiciones = [];
+ let s_filas = []
+ let secciones = [] // Guarda los vertices de cada seccion para establecer el Cn
  var ind = 0;
   var map = L.map('map').
      setView([-38.7028912,-72.5500302],
@@ -273,43 +271,110 @@ maxZoom:18
 L.marker([-38.7028912,-72.5500302],{draggable: true}).addTo(map);
 
 map.on('click', function(e) {
+
+	//Coordenadas del click 
     var coord = e.latlng;
     var add_coord = true;
+    var existe = false;
     var lat = coord.lat;
     var long = coord.lng;
+        
 
-    //Variable para guardar la coordenada mas cercana
-    var coord_2  
-    //Detecta si es un valor cercano 
-    for (var i=0; i < posiciones.length ; i++) {
-    	d = L.GeometryUtil.length([coord, posiciones[i]])
 
-    	if ( d <= 100 ){
-    		add_coord = false
-    		coord_2 = posiciones[i]
-    	}
+    //Si el contador de nodos es igual al establecido no se pueden dibujar mas 
+    if(cont_nodos == cNodos){
+    	termino = true
     }
 
-    if(add_coord){
-    	posiciones.push([lat,long]);
+    //Si aun se pueden crear mas Sectores 
+    if(!termino){
+	    
+
+    	
+    	
+	    var coord_cercano // guarda la coordenada mas cercana 
+	
+
+	    //Detecta si es un valor cercano 
+	    for (var i=0; i < posiciones.length ; i++) {
+	    	d = L.GeometryUtil.length([coord, posiciones[i]])
+
+	    	//Si la distancia es menor a 100 establece que es un punto cercano y guarda esa posicion
+	    	// para cerrar el triangulo
+	    	if ( d <= 100 ){
+	    		add_coord = false
+	    		coord_cercano = posiciones[i]
+	    	}
+	    }
+
+	    //Añade coordenadas para dibujar 
+	    if(add_coord){
+	    	posiciones.push([lat,long]);
+	    	s_filas.push([lat,long])
+	    }else{
+
+	    	//Añade la coordenada existente para cerrar el triangulo
+	    	posiciones.push(coord_cercano)
+	    	add_coord = true
+	    	cont_nodos= cont_nodos + 1 
+	    	//Poner marcador en la mitad
+
+
+
+	    	//ve si la posicion existe en el arreglo s_filas , si existe lo guarda para el  siguiente triangulo
+	    	for(i=0; i < s_filas.length ; i++){
+	    		if(s_filas[i][0] == coord_cercano[0] && s_filas[i][1] == coord_cercano[1]){
+	    			existe = true
+	    			console.log("verdarero")
+	    		}
+	    	}
+	    	console.log(existe)
+
+	    	if(existe)
+	    	{
+	    		secciones.push(s_filas)
+	    		s_filas = []
+	    		s_filas.push(coord_cercano)
+	    		existe = false
+	    	}else{
+	    		
+
+	    		s_filas.push(coord_cercano)
+	    		if(s_filas.length == 2 ){
+	    			s_filas.push(secciones[secciones.length-1][2])
+	   		}
+
+	    		secciones.push(s_filas)
+	    		s_filas = []
+
+
+	    	}
+
+	    	console.log(secciones)
+
+
+	    }
+
+	    //Si el arreglo contiene datos , muestra la posicion con un circulo
+	    if ( posiciones.length > 0){
+	    	L.circle(posiciones[ind], {radius: 10}).addTo(map);
+	    	ind = ind +1
+	    }    
+
+	    //Si el arreglo posee mas de dos datos muestra la linea
+	    if(posiciones.length > 2 ){
+	    	var polyline = L.polyline(posiciones, {color: 'red'}).addTo(map);
+	    }
+
     }else{
-    	posiciones.push(coord_2)
-    	add_coord = true
-    	console.log(cNodos)
-
+    	alert("Todos los Sectores añadidos!!")
     }
+
     
 
 
 
-    if ( posiciones.length > 0){
-    	console.log("Soy grande")
-    	L.circle(posiciones[ind], {radius: 10}).addTo(map);
-    	ind = ind +1
-    }    
-    if(posiciones.length > 2 ){
-    	var polyline = L.polyline(posiciones, {color: 'red'}).addTo(map);
-    }
+
 
 
 } );

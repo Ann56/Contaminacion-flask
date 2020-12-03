@@ -9,7 +9,18 @@
   		<script src="{{url_for('static', filename = 'js/bootstrap.js')}}"></script>
   		<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+
+
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+		<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+		<script src="https://npmcdn.com/leaflet-geometryutil"></script>
+
 	</head>
+<style type="text/css">
+	
+	#map{height: 500px;}
+
+</style>
 	<!--- Sidebar ---->
 	<nav class="navbar navbar-expand-lg navbar-light " style="background-color: #48FAC8 ;">
 	<a class="navbar-brand">Aplicacion Flask</a>
@@ -37,9 +48,10 @@
 					          <li class="nav-item">
 					            <a class="nav-link " style="background-color: #FA5D2F ;color: white">
 					              <span data-feather="home"></span>
-					             	Graficos Disponibles <span class="sr-only">(current)</span>
+					             	Datos disponibles <span class="sr-only">(current)</span>
 					            </a>
 					          </li>
+					          <li class="sel nav-item" ><a class="nav-link" id="ruta" style="color : black">Ver ruta del Sensor</a> </li>
 		          		 		{% for i in col %}
 						          <li class="sel nav-item">
 						            <a class="nav-link" id="{{i}}" style="color : black">
@@ -56,8 +68,8 @@
 				      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 					        <h1 class="h2" id="name" >Datos Disponibles</h1>
 				      </div>
-				      <div class="col-10">
-				      	<table class="table" >
+				      <div id="tabla" class="col-10 table-responsive" style="height: 700px;">
+				      	<table class="table"  >
 							  <thead class="thead-dark">
 							    <tr>
 							      <th scope="col">#</th>
@@ -69,75 +81,134 @@
 							  	
 
 							  </tbody>
-							</table>
-				      </div>
+						</table>
+				      </div class="col-10" id="mapa">
 
+				      	<div id="map"></div>
+
+				    </main>
+				</div>
+
+
+			</div>
 
 <script type="text/javascript">
-	
+	var map = L.map('map').setView([-38.732689,-72.645523],15);
+	 L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+	maxZoom:18
+	}).addTo(map);
+
+	function max(array){
+		var maxValue = array[0];
+		var index    = 0;
+		for(var i = 1; i < array.length; i++) {
+		   var currentValue = array[i];
+		   if(currentValue > maxValue) {
+		      maxValue = currentValue;
+		      index = i;
+		   }
+		}
+		return [maxValue,index];		
+	}
+
+	$(document).ready(function(){
+		$("#map").hide();
+		$("#tabla").hide();
+	});
 	$('#sidebar').each(function(){
 		$(this).find('.sel').each(function() {
 			$(this).click(function(){
 				var name = $(this).find('a').attr("id");
 
-				var nombre = 'Datos Disponibles de  ' + name;
-				
-				$("#name").text(nombre)
+
+				//Si es disinto a generar ruta 
+				if ( name != "ruta")
+				{
+					$("#map").hide();
+					$("#tabla").show();
+					var nombre = 'Datos Disponibles de  ' + name;
+					
+					$("#name").text(nombre)
+					$.ajax({
+							url: '/getdata',
+							data: {'name':name},
+							type: 'POST',
+							success: function(response){
+								var datax = JSON.parse(response)
+
+								time = datax.particulas[name].time
+								valor= datax.particulas[name].valor
+
+								html = ""
+								for(i = 0 ; i < time.length ; i++)
+								{
+									
+									t= time[i]
+									v = valor[i]
+
+									html = html + "<tr>" 
+									html = html + "<th scope='row'>"+ i +'</th>'
+									html = html + "<th>"+ t +'</th>'
+									html = html + "<th>"+ v +'</th>' 
+									html = html + "</tr>"
+								}
+
+								$("#fil").html(html)
+
+							},
+							error: function(error){
+								console.log(error);
+							}
+						});				
+				}
+				//Muestra el recorrido del sensor
+				else{
+						$("#tabla").hide();
+						$("#map").show()
+						$.ajax({
+							url: '/getdata',
+							data: {'name':name},
+							type: 'POST',
+							success: function(response)
+							{
+								var datax = JSON.parse(response)
+								particulas = datax.particulas
+								coord = datax.coord
+								//Variables de material particulado
+								for (obj in particulas){
+									valor = particulas[obj].valor;
+									m = max(valor);	
+									c = coord[m[1]]
+									name=JSON.stringify(obj)
+									L.marker(c).addTo(map)	
+									    .bindPopup('Valor maximo de '+name +" siendo : "+ m[0])
+									    .openPopup();
+
+								}
+								L.marker(coord[0]).addTo(map)
+								    .bindPopup('Inicio Recorrido')
+								    .openPopup();							
+
+								L.marker(coord[coord.length-1]).addTo(map)
+								    .bindPopup('Final Recorrido')
+								    .openPopup();	
+
+								var polyline = L.polyline(coord, {color: 'red'}).addTo(map);
 
 
-				$("#fill").html(function(){
-					return ""
-				})
+							},
+							error: function(error){
+								console.log(error);
+							}
+						});	
 
-
-				$.ajax({
-					url: '/getdata',
-					data: {'name':name},
-					type: 'POST',
-					success: function(response){
-						var datax = JSON.parse(response)
-						
-						console.log(datax.data.time.length)
-
-						html = ""
-
-						for (i=0;i < datax.data.time.length;i++) {
-
-
-							time = datax.data.time[i]
-							valor = datax.data.valor[i]
-							ind = i +1
-
-							html = html + "<tr>" 
-							html = html + "<th scope='row'>"+ ind +'</th>'
-							html = html + "<th>"+ time +'</th>'
-							html = html + "<th>"+ valor +'</th>' 
-							html = html + "</tr>"
-
-							$("#fil").html(function(){
-								return html
-							})
-
-						}
-
-
-					},
-					error: function(error){
-						console.log(error);
 					}
-				});
-               
-
 			});
 		});
 	});
-
-
 </script>
 
-				    </main>
-				</div>
-			</div>
 
 	</body>
 
