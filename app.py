@@ -1,4 +1,4 @@
-from flask import Flask , render_template,request,json,request
+from flask import Flask , render_template,request,json,request , jsonify
 import pandas as pd
 import plotly
 import plotly.graph_objs as go
@@ -44,6 +44,13 @@ def getBar():
 	y = d['valor']
 
 	return json.dumps({'status':'Ok','data':{'x':x,'y':y}})
+
+@app.route("/getEcuacion",methods=['POST'])
+def getEcuacion():
+	data = request.get_json()
+
+	print(data)
+	return json.dumps({'status':'Ok'})
 
 
 @app.route("/simulacion")

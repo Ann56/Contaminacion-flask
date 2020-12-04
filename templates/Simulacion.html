@@ -100,17 +100,34 @@
 			</div>
 	</body>
 <script type="text/javascript">
-	var cNodos = 0;
-	var cont_nodos = 0;
-	var termino = false;
-	$(document).ready(function() {
+
+
+//Variables a utilizar
+
+let posiciones = []; // arreglo que se utiliza para guardar las coordenadas para generar el polygono
+let s_filas = []
+let secciones = [] // Guarda los vertices de cada seccion para establecer el Cn
+
+var ind = 0;
+var ind_seccion = 0;
+var coord_ant ;
+
+
+var cNodos = 0;
+var cont_nodos = 0;
+var termino = false;
+
+
+//---------------------------
+
+
+//Funciones  jquery
+$(document).ready(function() {
 		$("#map").hide()
 		
 		
 		var aValores   = new Array (5,5,5,5,5,5,5);
 		var aConstantes = new Array (5,5,5,5,5,5,5);
-		// flag -> false ; activado Establecer valores
-		// flag -> true : activado Establecer  Constantes
 		var flag = false;
 
 
@@ -249,20 +266,32 @@
 
 		}
 	});
-
-
-		
 });
 
+//----------------------------
+// Funcion para establecer distancia entre dos puntos
+
+function distancia(a,b){
+
+	x = Math.abs(b[0] - a[0])
+
+	y = Math.abs(b[1] - a[1])
 
 
- let posiciones = [];
- let s_filas = []
- let secciones = [] // Guarda los vertices de cada seccion para establecer el Cn
- var ind = 0;
-  var map = L.map('map').
-     setView([-38.7028912,-72.5500302],
-     15);
+	x = Math.pow(2,x)
+	y = Math.pow(2,y)
+
+	d = Math.sqrt(x+y)
+
+	return d
+}
+
+
+
+//---------------------------
+//Genera el mapa a utilizar 
+
+var map = L.map('map').setView([-38.7028912,-72.5500302],15);
  L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
 maxZoom:18
@@ -270,6 +299,10 @@ maxZoom:18
 
 L.marker([-38.7028912,-72.5500302],{draggable: true}).addTo(map);
 
+//--------------------------------------------------------------------------
+
+
+//Funcion de cuando el mapa es precionado
 map.on('click', function(e) {
 
 	//Coordenadas del click 
@@ -278,9 +311,7 @@ map.on('click', function(e) {
     var existe = false;
     var lat = coord.lat;
     var long = coord.lng;
-        
-
-
+    
     //Si el contador de nodos es igual al establecido no se pueden dibujar mas 
     if(cont_nodos == cNodos){
     	termino = true
@@ -288,10 +319,6 @@ map.on('click', function(e) {
 
     //Si aun se pueden crear mas Sectores 
     if(!termino){
-	    
-
-    	
-    	
 	    var coord_cercano // guarda la coordenada mas cercana 
 	
 
@@ -311,11 +338,35 @@ map.on('click', function(e) {
 	    if(add_coord){
 	    	posiciones.push([lat,long]);
 	    	s_filas.push([lat,long])
-	    }else{
+
+	    	if(coord_ant == undefined){
+	    		coord_ant = [lat,long]
+	    	}
+
+	   // 	console.log("----------------------------------------------")
+	  //  	console.log("Posicion anterior : "+coord_ant)
+	  //  	console.log("Posicion actual :" + [lat,long])
+	  //  	console.log("----------------------------------------------------")
+
+
+	  		//Si no es el primer dato anterior guardado , guarda en la d_Filas la distancia obtenida
+	    	if(lat != coord_ant[0] && long != coord_ant[1] ){
+	    		console.log("Distancia "+ distancia([lat,long] , coord_ant))
+
+	    	}
+	    	
+	    }
+	    else{
+
+	 //   	console.log("----------------------------------------------")
+	 //   	console.log("Posicion anterior : "+coord_ant)
+	 //   	console.log("Posicion actual :" + [lat,long])
+	 //   	console.log("----------------------------------------------------")
+
+	    	//Parte cuando seccion es cerrada
 
 	    	//Añade la coordenada existente para cerrar el triangulo
 	    	posiciones.push(coord_cercano)
-	    	add_coord = true
 	    	cont_nodos= cont_nodos + 1 
 	    	//Poner marcador en la mitad
 
@@ -325,42 +376,66 @@ map.on('click', function(e) {
 	    	for(i=0; i < s_filas.length ; i++){
 	    		if(s_filas[i][0] == coord_cercano[0] && s_filas[i][1] == coord_cercano[1]){
 	    			existe = true
-	    			console.log("verdarero")
 	    		}
 	    	}
-	    	console.log(existe)
 
 	    	if(existe)
 	    	{
+
+	    		
+
 	    		secciones.push(s_filas)
 	    		s_filas = []
 	    		s_filas.push(coord_cercano)
 	    		existe = false
-	    	}else{
 	    		
-
+	    	}else
+	    	{
 	    		s_filas.push(coord_cercano)
-	    		if(s_filas.length == 2 ){
+	    		if(s_filas.length == 2 )
+	    		{
 	    			s_filas.push(secciones[secciones.length-1][2])
-	   		}
+	   			}
 
 	    		secciones.push(s_filas)
 	    		s_filas = []
-
-
 	    	}
 
-	    	console.log(secciones)
 
+				    
+	    	//Se crea una etiqueta en el centro de la seccion
+	    	//obtiene punto medio de la primera pos con la segunda 
+	    	delta_lat = (secciones[ind_seccion][0][0] + secciones[ind_seccion][1][0]) / 2
+	    	delta_lon = (secciones[ind_seccion][0][1] + secciones[ind_seccion][1][1] )  /2
+	    	//obtiene punto medio con el calculado anteriormente y el ultimo punto de coord existente
+	    	
+	    	len = secciones[ind_seccion].length - 1
+
+	    	d2_lat = ( delta_lat + secciones[ind_seccion][len][0]) /2
+	    	d2_lon = ( delta_lon + secciones[ind_seccion][len][1]) /2
+
+
+			L.marker([d2_lat, d2_lon]).addTo(map)
+			    .bindPopup('C'+(ind_seccion+1))
+			    .openPopup();
+
+	    	console.log(secciones_distancia)
+
+	    	//Aumenta el indice en 1 
+	    	ind_seccion = ind_seccion+1
 
 	    }
+
+	    //guarda el valor anterior 
+	    coord_ant = [lat,long]
+
+
 
 	    //Si el arreglo contiene datos , muestra la posicion con un circulo
 	    if ( posiciones.length > 0){
 	    	L.circle(posiciones[ind], {radius: 10}).addTo(map);
 	    	ind = ind +1
 	    }    
-
 	    //Si el arreglo posee mas de dos datos muestra la linea
 	    if(posiciones.length > 2 ){
 	    	var polyline = L.polyline(posiciones, {color: 'red'}).addTo(map);
@@ -368,16 +443,28 @@ map.on('click', function(e) {
 
     }else{
     	alert("Todos los Sectores añadidos!!")
+
+    	//Envia las posiciones de cada sector para establecer sus ecuaciones
+
+		$.ajax({
+		    type: 'POST',
+		    contentType: 'application/json',
+		    url: '/getEcuacion',
+		    dataType : 'json',
+		    data : JSON.stringify(secciones),
+		    success : function(result) {
+				var datax = result
+				console.log(datax)		       
+		    },error : function(result){
+		       console.log(result);
+		    }
+
+
+		 });
     }
 
-    
 
-
-
-
-
-
-} );
+});
 
 </script>
 
